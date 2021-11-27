@@ -1,42 +1,63 @@
 <!DOCTYPE html>
 <html>
 
+<button id = "ButtonX">Rotate X</button>
+<button id = "ButtonY">Rotate Y</button>
+<button id = "ButtonZ">Rotate Z</button>
+<button id = "ButtonT">Toggle Rotation</button>
+
+
 <script id="vertex-shader" type="x-shader/x-vertex">
 #version 300 es
 
-in vec4 aPosition;
-in vec4 aColor;
+in  vec4 aPosition;
+in  vec3 aNormal;
 out vec4 vColor;
 
-uniform vec3 theta;
+uniform vec4 uAmbientProduct, uDiffuseProduct, uSpecularProduct;
+uniform mat4 uModelViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform vec4 uLightPosition;
+uniform float uShininess;
 
 void main()
 {
-    // Compute the sines and cosines of theta for each of
-    //   the three axes in one computation.
-    vec3 angles = radians( theta );
-    vec3 c = cos( angles );
-    vec3 s = sin( angles );
-
-    // Remeber: thse matrices are column-major
-    mat4 rx = mat4( 1.0,  0.0,  0.0, 0.0,
-		    0.0,  c.x,  s.x, 0.0,
-		    0.0, -s.x,  c.x, 0.0,
-		    0.0,  0.0,  0.0, 1.0 );
-
-    mat4 ry = mat4( c.y, 0.0, -s.y, 0.0,
-		    0.0, 1.0,  0.0, 0.0,
-		    s.y, 0.0,  c.y, 0.0,
-		    0.0, 0.0,  0.0, 1.0 );
 
 
-    mat4 rz = mat4( c.z, -s.z, 0.0, 0.0,
-		    s.z,  c.z, 0.0, 0.0,
-		    0.0,  0.0, 1.0, 0.0,
-		    0.0,  0.0, 0.0, 1.0 );
+    vec3 pos = -(uModelViewMatrix * aPosition).xyz;
 
-    vColor = aColor;
-    gl_Position = rz * ry * rx * aPosition;
+    //fixed light postion
+
+    vec3 light = uLightPosition.xyz;
+    vec3 L = normalize(light - pos);
+
+
+    vec3 E = normalize(-pos);
+    vec3 H = normalize(L + E);
+
+    vec4 NN = vec4(aNormal,0);
+
+    // Transform vertex normal into eye coordinates
+
+    vec3 N = normalize((uModelViewMatrix*NN).xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient = uAmbientProduct;
+
+    float Kd = max(dot(L, N), 0.0);
+    vec4  diffuse = Kd*uDiffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), uShininess );
+    vec4  specular = Ks * uSpecularProduct;
+
+    if( dot(L, N) < 0.0 ) {
+	  specular = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    gl_Position = uProjectionMatrix * uModelViewMatrix *aPosition;
+    vColor = ambient + diffuse +specular;
+
+    vColor.a = 1.0;
 }
 </script>
 
@@ -44,6 +65,7 @@ void main()
 #version 300 es
 
 precision mediump float;
+
 
 in vec4 vColor;
 out vec4 fColor;
@@ -57,21 +79,11 @@ main()
 
 <script type="text/javascript" src="../Common/initShaders.js"></script>
 <script type="text/javascript" src="../Common/MVnew.js"></script>
-<script type="text/javascript" src="cubeData.js"></script>
 <script type="text/javascript" src="Assignment6.js"></script>
 
-
 <body>
-<canvas id="gl-canvas" width="512"" height="512">
+<canvas id="gl-canvas" width="512" height="512">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
-
-<br/>
-
-<button id= "xButton">Rotate X</button>
-<button id= "yButton">Rotate Y</button>
-<button id= "zButton">Rotate Z</button>
-<button id = "ButtonT">Toggle Rotation</button>
-
 </body>
 </html>
