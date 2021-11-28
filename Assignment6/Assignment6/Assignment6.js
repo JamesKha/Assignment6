@@ -5,7 +5,7 @@ var shadedCube = function() {
 var canvas;
 var gl;
 
-var numPositions = 36;
+var numPositions = 72;
 
 var positionsArray = [];
 var normalsArray = [];
@@ -20,6 +20,20 @@ var vertices = [
         vec4(0.5,  0.5, -0.5, 1.0),
         vec4(0.5, -0.5, -0.5, 1.0)
     ];
+
+
+
+    var vertices2 = [
+      vec4(-0.5, -1.5,  -0.5, 1.0),
+      vec4(-0.5,  -0.5,  -0.5, 1.0),
+      vec4(0.5,  -0.5,  -0.5, 1.0),
+      vec4(0.5, -1.5,  -0.5, 1.0),
+      vec4(-0.5, -1.5, -1.5, 1.0),
+      vec4(-0.5,  -0.5, -1.5, 1.0),
+      vec4(0.5,  -0.5, -1.5, 1.0),
+      vec4(0.5, -1.5, -1.5, 1.0)
+  ];
+
 
 var lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
@@ -47,37 +61,37 @@ var thetaLoc;
 
 var flag = false;
 
-function quad(a, b, c, d) {
+function quad(array, a, b, c, d) {
 
-     var t1 = subtract(vertices[b], vertices[a]);
-     var t2 = subtract(vertices[c], vertices[b]);
+     var t1 = subtract(array[b], array[a]);
+     var t2 = subtract(array[c], array[b]);
      var normal = cross(t1, t2);
      normal = vec3(normal);
 
 
-     positionsArray.push(vertices[a]);
+     positionsArray.push(array[a]);
      normalsArray.push(normal);
-     positionsArray.push(vertices[b]);
+     positionsArray.push(array[b]);
      normalsArray.push(normal);
-     positionsArray.push(vertices[c]);
+     positionsArray.push(array[c]);
      normalsArray.push(normal);
-     positionsArray.push(vertices[a]);
+     positionsArray.push(array[a]);
      normalsArray.push(normal);
-     positionsArray.push(vertices[c]);
+     positionsArray.push(array[c]);
      normalsArray.push(normal);
-     positionsArray.push(vertices[d]);
+     positionsArray.push(array[d]);
      normalsArray.push(normal);
 }
 
 
-function colorCube()
+function colorCube(array)
 {
-    quad(1, 0, 3, 2);
-    quad(2, 3, 7, 6);
-    quad(3, 0, 4, 7);
-    quad(6, 5, 1, 2);
-    quad(4, 5, 6, 7);
-    quad(5, 4, 0, 1);
+    quad(array, 1, 0, 3, 2);
+    quad(array, 2, 3, 7, 6);
+    quad(array,3, 0, 4, 7);
+    quad(array,6, 5, 1, 2);
+    quad(array,4, 5, 6, 7);
+    quad(array,5, 4, 0, 1);
 }
 
 
@@ -99,7 +113,8 @@ window.onload = function init() {
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    colorCube();
+    colorCube(vertices);
+    colorCube(vertices2);
 
     var nBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
