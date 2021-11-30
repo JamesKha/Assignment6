@@ -1,12 +1,18 @@
-<html><head><style type="text/css">
+<!DOCTYPE html>
+<html>
+<style type="text/css">
     canvas { background: blue; }
 </style>
+<body>
 
-</head><body>
-<button id="ButtonX">Rotate X</button>
-<button id="ButtonY">Rotate Y</button>
-<button id="ButtonZ">Rotate Z</button>
-<button id="ButtonT">Toggle Rotatation</button>
+<canvas id="gl-canvas" width="1024" height="1024"> </canvas>
+
+<img id = "texImage" src = "tiger.png" hidden></img>
+
+<button id = "ButtonX">Rotate X</button>
+<button id = "ButtonY">Rotate Y</button>
+<button id = "ButtonZ">Rotate Z</button>
+<button id = "ButtonT">Toggle Rotatation</button>
 
 <script id="vertex-shader" type="x-shader/x-vertex">
 #version 300 es
@@ -71,16 +77,9 @@ main()
 }
 </script>
 
-<script type="text/javascript" src="../Common/initShaders.js"></script>
-<script type="text/javascript" src="../Common/MVnew.js"></script>
-<script type="text/javascript" src="Assignment6.js"></script>
+<script src="../Common/initShaders.js"></script>
+<script src="../Common/MVnew.js"></script>
+<script src="Assignment6.js"></script>
 
-
-
-<canvas id="gl-canvas" width="1024" height="1024">
-Oops ... your browser doesn't support the HTML5 canvas element
-</canvas>
-<img id="texImage" src="frontOfhead.jpg">
-
-
-</body></html>
+</body>
+</html>
