@@ -1,106 +1,116 @@
 "use strict";
 
-var shadedCube = function() {
-
 var canvas;
 var gl;
 
-var numPositions = 72;
+var numPositions  = 36;
+
+var texSize = 64;
+
+var program;
+var flag = true;
 
 var positionsArray = [];
-var normalsArray = [];
+var colorsArray = [];
+var texCoordsArray = [];
+
+var texture;
+
+var texCoord = [
+    vec2(0, 0),
+    vec2(0, 1),
+    vec2(1, 1),
+    vec2(1, 0)
+];
 
 var vertices = [
-        vec4(-0.5, -0.5,  0.5, 1.0),
-        vec4(-0.5,  0.5,  0.5, 1.0),
-        vec4(0.5,  0.5,  0.5, 1.0),
-        vec4(0.5, -0.5,  0.5, 1.0),
-        vec4(-0.5, -0.5, -0.5, 1.0),
-        vec4(-0.5,  0.5, -0.5, 1.0),
-        vec4(0.5,  0.5, -0.5, 1.0),
-        vec4(0.5, -0.5, -0.5, 1.0)
-    ];
+    vec4(-0.5, -0.5,  0.5, 1.0),
+    vec4(-0.5,  0.5, 0.5, 1.0),
+    vec4(0.5,  0.5, 0.5, 1.0),
+    vec4(0.5, -0.5, 0.5, 1.0),
+    vec4(-0.5, -0.5, -0.5, 1.0),
+    vec4(-0.5,  0.5, -0.5, 1.0),
+    vec4(0.5,  0.5, -0.5, 1.0),
+    vec4(0.5, -0.5, -0.5, 1.0)
+];
 
-
-
-    var vertices2 = [
-      vec4(-0.5, -1.5,  -0.5, 1.0),
-      vec4(-0.5,  -0.5,  -0.5, 1.0),
-      vec4(0.5,  -0.5,  -0.5, 1.0),
-      vec4(0.5, -1.5,  -0.5, 1.0),
-      vec4(-0.5, -1.5, -1.5, 1.0),
-      vec4(-0.5,  -0.5, -1.5, 1.0),
-      vec4(0.5,  -0.5, -1.5, 1.0),
-      vec4(0.5, -1.5, -1.5, 1.0)
-  ];
-
-
-var lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
-var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-
-var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
-var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
-var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
-var materialShininess = 100.0;
-
-var ctm;
-var ambientColor, diffuseColor, specularColor;
-var modelViewMatrix, projectionMatrix;
-var viewerPos;
-var program;
+var vertexColors = [
+    vec4(0.0, 0.0, 0.0, 1.0),  // black
+    vec4(1.0, 0.0, 0.0, 1.0),  // red
+    vec4(1.0, 1.0, 0.0, 1.0),  // yellow
+    vec4(0.0, 1.0, 0.0, 1.0),  // green
+    vec4(0.0, 0.0, 1.0, 1.0),  // blue
+    vec4(1.0, 0.0, 1.0, 1.0),  // magenta
+    vec4(0.0, 1.0, 1.0, 1.0),  // white
+    vec4(0.0, 1.0, 1.0, 1.0)   // cyan
+];
 
 var xAxis = 0;
 var yAxis = 1;
 var zAxis = 2;
-var axis = 0;
-var theta = vec3(0, 0, 0);
+var axis = xAxis;
+var theta = vec3(45.0, 45.0, 45.0);
 
 var thetaLoc;
 
-var flag = false;
+function configureTexture( image ) {
+    texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB,
+         gl.RGB, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                      gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-function quad(array, a, b, c, d) {
-
-     var t1 = subtract(array[b], array[a]);
-     var t2 = subtract(array[c], array[b]);
-     var normal = cross(t1, t2);
-     normal = vec3(normal);
-
-
-     positionsArray.push(array[a]);
-     normalsArray.push(normal);
-     positionsArray.push(array[b]);
-     normalsArray.push(normal);
-     positionsArray.push(array[c]);
-     normalsArray.push(normal);
-     positionsArray.push(array[a]);
-     normalsArray.push(normal);
-     positionsArray.push(array[c]);
-     normalsArray.push(normal);
-     positionsArray.push(array[d]);
-     normalsArray.push(normal);
+    gl.uniform1i(gl.getUniformLocation(program, "uTexMap"), 0);
 }
 
 
-function colorCube(array)
+function quad(a, b, c, d) {
+     positionsArray.push(vertices[a]);
+     colorsArray.push(vertexColors[a]);
+     texCoordsArray.push(texCoord[0]);
+
+     positionsArray.push(vertices[b]);
+     colorsArray.push(vertexColors[a]);
+     texCoordsArray.push(texCoord[1]);
+
+     positionsArray.push(vertices[c]);
+     colorsArray.push(vertexColors[a]);
+     texCoordsArray.push(texCoord[2]);
+
+     positionsArray.push(vertices[a]);
+     colorsArray.push(vertexColors[a]);
+     texCoordsArray.push(texCoord[0]);
+
+     positionsArray.push(vertices[c]);
+     colorsArray.push(vertexColors[a]);
+     texCoordsArray.push(texCoord[2]);
+
+     positionsArray.push(vertices[d]);
+     colorsArray.push(vertexColors[a]);
+     texCoordsArray.push(texCoord[3]);
+}
+
+
+function colorCube()
 {
-    quad(array, 1, 0, 3, 2);
-    quad(array, 2, 3, 7, 6);
-    quad(array,3, 0, 4, 7);
-    quad(array,6, 5, 1, 2);
-    quad(array,4, 5, 6, 7);
-    quad(array,5, 4, 0, 1);
+    quad(1, 0, 3, 2);
+    quad(2, 3, 7, 6);
+    quad(3, 0, 4, 7);
+    quad(6, 5, 1, 2);
+    quad(4, 5, 6, 7);
+    quad(5, 4, 0, 1);
 }
 
 
 window.onload = function init() {
+
     canvas = document.getElementById("gl-canvas");
 
     gl = canvas.getContext('webgl2');
-    if (!gl) alert( "WebGL 2.0 isn't available");
-
+    if (!gl) alert("WebGL 2.0 isn't available");
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
@@ -113,16 +123,15 @@ window.onload = function init() {
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    colorCube(vertices);
-    colorCube(vertices2);
+    colorCube();
 
-    var nBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
+    var cBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW );
 
-    var normalLoc = gl.getAttribLocation(program, "aNormal");
-    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(normalLoc);
+    var colorLoc = gl.getAttribLocation(program, "aColor");
+    gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(colorLoc);
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
@@ -132,60 +141,44 @@ window.onload = function init() {
     gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc);
 
-    thetaLoc = gl.getUniformLocation(program, "theta");
+    var tBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
 
-    viewerPos = vec3(0.0, 0.0, -20.0);
+    var texCoordLoc = gl.getAttribLocation(program, "aTexCoord");
+    gl.vertexAttribPointer(texCoordLoc, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(texCoordLoc);
 
-    projectionMatrix = ortho(-1, 1, -1, 1, -100, 100);
+    //
+    // Initialize a texture
+    //
 
-    var ambientProduct = mult(lightAmbient, materialAmbient);
-    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    var specularProduct = mult(lightSpecular, materialSpecular);
+    //var image = new Image();
+    //image.onload = function() {
+     //   configureTexture( image );
+    //}
+    //image.src = "SA2011_black.gif"
+
+
+    var image = document.getElementById("texImage");
+
+    configureTexture(image);
+
+    thetaLoc = gl.getUniformLocation(program, "uTheta");
 
     document.getElementById("ButtonX").onclick = function(){axis = xAxis;};
     document.getElementById("ButtonY").onclick = function(){axis = yAxis;};
     document.getElementById("ButtonZ").onclick = function(){axis = zAxis;};
     document.getElementById("ButtonT").onclick = function(){flag = !flag;};
 
-    gl.uniform4fv(gl.getUniformLocation(program, "uAmbientProduct"),
-       ambientProduct);
-    gl.uniform4fv(gl.getUniformLocation(program, "uDiffuseProduct"),
-       diffuseProduct );
-    gl.uniform4fv(gl.getUniformLocation(program, "uSpecularProduct"),
-       specularProduct );
-    gl.uniform4fv(gl.getUniformLocation(program, "uLightPosition"),
-       lightPosition );
-
-    gl.uniform1f(gl.getUniformLocation(program,
-       "uShininess"), materialShininess);
-
-    gl.uniformMatrix4fv( gl.getUniformLocation(program, "uProjectionMatrix"),
-       false, flatten(projectionMatrix));
     render();
+
 }
 
-var render = function(){
-
+var render = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
     if(flag) theta[axis] += 2.0;
-
-    modelViewMatrix = mat4();
-    modelViewMatrix = mult(modelViewMatrix, rotate(theta[xAxis], vec3(1, 0, 0)));
-    modelViewMatrix = mult(modelViewMatrix, rotate(theta[yAxis], vec3(0, 1, 0)));
-    modelViewMatrix = mult(modelViewMatrix, rotate(theta[zAxis], vec3(0, 0, 1)));
-
-    //console.log(modelView);
-
-    gl.uniformMatrix4fv(gl.getUniformLocation(program,
-            "uModelViewMatrix"), false, flatten(modelViewMatrix));
-
+    gl.uniform3fv(thetaLoc, theta);
     gl.drawArrays(gl.TRIANGLES, 0, numPositions);
-
-
     requestAnimationFrame(render);
 }
-
-}
-
-shadedCube();
