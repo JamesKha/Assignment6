@@ -1,3 +1,12 @@
+/* 
+Name: Jimmy Kha 
+Student Number: 588541 
+CMPT 325: Fall 2021
+Assignment #6: WebGL Texture Mapping
+Due Date: December 13th, 2021
+ */
+
+
 "use strict";
 /*global variable defined*/
 var canvas;
