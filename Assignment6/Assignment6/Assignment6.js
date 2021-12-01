@@ -175,8 +175,8 @@ var cubes = [
 
 
     
-translate(1, 0, 1), 
-translate(-1, 0, -1)
+translate(1, 0, -1), 
+translate(0, 0, 2)
 ];
 var lightPosition = vec4(0.0, 2.0, 0.0, 1.0);
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
