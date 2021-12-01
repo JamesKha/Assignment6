@@ -6,10 +6,50 @@ var numPositions  = 36;
 var texSize = 64;
 var program;
 var positionsArray = new Float32Array([
+    -0.5, -0.5,  -0.5,
+    -0.5,  0.5,  -0.5,
+     0.5, -0.5,  -0.5,
+    -0.5,  0.5,  -0.5,
+     0.5,  0.5,  -0.5,
+     0.5, -0.5,  -0.5,
 
-    //Write your code
+    -0.5, -0.5,   0.5,
+     0.5, -0.5,   0.5,
+    -0.5,  0.5,   0.5,
+    -0.5,  0.5,   0.5,
+     0.5, -0.5,   0.5,
+     0.5,  0.5,   0.5,
+
+    -0.5,   0.5, -0.5,
+    -0.5,   0.5,  0.5,
+     0.5,   0.5, -0.5,
+    -0.5,   0.5,  0.5,
+     0.5,   0.5,  0.5,
+     0.5,   0.5, -0.5,
+
+    -0.5,  -0.5, -0.5,
+     0.5,  -0.5, -0.5,
+    -0.5,  -0.5,  0.5,
+    -0.5,  -0.5,  0.5,
+     0.5,  -0.5, -0.5,
+     0.5,  -0.5,  0.5,
+
+    -0.5,  -0.5, -0.5,
+    -0.5,  -0.5,  0.5,
+    -0.5,   0.5, -0.5,
+    -0.5,  -0.5,  0.5,
+    -0.5,   0.5,  0.5,
+    -0.5,   0.5, -0.5,
+
+     0.5,  -0.5, -0.5,
+     0.5,   0.5, -0.5,
+     0.5,  -0.5,  0.5,
+     0.5,  -0.5,  0.5,
+     0.5,   0.5, -0.5,
+     0.5,   0.5,  0.5,
 
 ]);
+
 var texCoordsArray = new Float32Array([
     // select the top left image
     0   , 0  ,
@@ -43,7 +83,7 @@ var texCoordsArray = new Float32Array([
     0.25, 0.5,
     0.25, 1  ,
 
-    //Write your code
+
 
     // select the bottom middle image
     0.25, 0.5,
@@ -54,7 +94,7 @@ var texCoordsArray = new Float32Array([
     0.5 , 0.5,
     // select the bottom right image
 
-    //Write your code
+
     0.5 , 0.5,
     0.75, 0.5,
     0.5 , 1  ,
@@ -73,7 +113,7 @@ var normalsArray = [
     vec3(0.0, 0.0, 1.0),
     //back
 
-    //Write your code
+
 
     vec3(0.0, 0.0, -1.0),
     vec3(0.0, 0.0, -1.0),
@@ -91,7 +131,6 @@ var normalsArray = [
     vec3(0.0, 1, 0.0),
     // Bottom
 
-    //Write your code
     vec3(0.0, -1, 0.0),
     vec3(0.0, -1, 0.0),
     vec3(0.0, -1, 0.0),
@@ -106,7 +145,7 @@ var normalsArray = [
     vec3(1.0, 0.0, 0.0),
     vec3(1.0, 0.0, 0.0),
     //left
-    //Write your code
+
     vec3(-1.0, 0.0, 0.0),
     vec3(-1.0, 0.0, 0.0),
     vec3(-1.0, 0.0, 0.0),
@@ -130,7 +169,7 @@ var projectionMatrix;
 var modelViewMatrix;
 var cubes = [
 
-    //Write your code (two translates)
+
     //translate(?, 0, ?),
     //translate(?, 0, ?)
 
@@ -198,10 +237,10 @@ window.onload = function init(){
     projectionMatrixLoc = gl.getUniformLocation(program, "uProjectionMatrix");
    
     //set the perspective projection
-    var fieldOfView = 0; //Change the value
+    var fieldOfView = 70.0; //Change the value
     var aspect = canvas.width/canvas.height;
-    var zNear = 0.0; //Change the value
-    var zFar = 0; //Change the value
+    var zNear = 1; //Change the value
+    var zFar = 2000; //Change the value
     projectionMatrix = perspective(fieldOfView, aspect, zNear, zFar);
 
     //set the model-view matrix
@@ -236,7 +275,7 @@ function configureTexture(image){
 function render(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     if(flag){
-        theta[axis] += 0.0;  //Change the value
+        theta[axis] += 2.0;  //Change the value
     }
     //rotating the light
     lightPosition[0] = 5.5 * Math.sin(0.02 * time);
