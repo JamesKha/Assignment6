@@ -175,7 +175,7 @@ var cubes = [
 
 
     
-translate(1, 0, -1), 
+translate(0, 0, -2), 
 translate(0, 0, 2)
 ];
 var lightPosition = vec4(0.0, 2.0, 0.0, 1.0);
@@ -280,7 +280,7 @@ function render(){
     //rotating the light
     lightPosition[0] = 5.5 * Math.sin(0.02 * time);
     lightPosition[2] = 5.5 * Math.cos(0.02 * time);
-    time += 0; //Change the value
+    time += 2; //Change the value
 
     //generate two cubes, one is closer to the viewer and the other farther from the viewer
     for(var index = 0; index < cubes.length; index++){
